@@ -10,6 +10,11 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from utils import *
 from train import tf_dataset
+from tensorflow.keras.optimizers import Adam, Nadam
+from tensorflow.keras.models import Model
+from utils import *
+from metrics import *
+from tensorflow.keras.metrics import *
 
 def read_image(x):
     image = cv2.imread(x, cv2.IMREAD_COLOR)
@@ -89,5 +94,13 @@ if __name__ == "__main__":
         test_steps += 1
 
     model = load_model_weight("/content/SkinCancer/files/model.h5")
+    lr = 1e-4
+    metrics = [
+        dice_coef,
+        iou,
+        Recall(),
+        Precision()
+    ]
+    model.compile(loss=dice_loss, optimizer=Adam(lr), metrics=metrics)
     model.evaluate(test_dataset, steps=test_steps)
     evaluate_normal(model, test_x, test_y)
